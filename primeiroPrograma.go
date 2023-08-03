@@ -4,7 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 )
+
+const monitoring = 5
+const delay = 10
 
 func main() {
 	for {
@@ -53,12 +57,16 @@ func startMonitoring() {
 	fmt.Println("Monitorando")
 	var listUrl = []string{"https://alura.com.br", "https://curia.coop", "https://assembleia.curia.coop", "https://painel.curia.coop/"}
 
-	for i, url := range listUrl {
-		position := i + 1
-		fmt.Println("Testando o site:", position)
-		testUrl(url)
+	for i := 0; i < monitoring; i++ {
+		for i, url := range listUrl {
+			position := i + 1
+			fmt.Println("Testando o site:", position)
+			testUrl(url)
+		}
+		time.Sleep(delay * time.Second)
+		fmt.Println("")
 	}
-
+	fmt.Println("")
 }
 
 func testUrl(url string) {
