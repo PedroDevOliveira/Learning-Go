@@ -51,7 +51,17 @@ func readCommand() int {
 
 func startMonitoring() {
 	fmt.Println("Monitorando")
-	var url string = "https://alura.com.br"
+	var listUrl = []string{"https://alura.com.br", "https://curia.coop", "https://assembleia.curia.coop", "https://painel.curia.coop/"}
+
+	for i, url := range listUrl {
+		position := i + 1
+		fmt.Println("Testando o site:", position)
+		testUrl(url)
+	}
+
+}
+
+func testUrl(url string) {
 	var res, _ = http.Get(url)
 
 	if res.StatusCode == 200 {
@@ -59,5 +69,12 @@ func startMonitoring() {
 	} else {
 		fmt.Println("Site:", url, "está com problemas")
 	}
+}
 
+func showNames() {
+	var names = []string{"Pedro", "Daniel", "Lucas"}
+	names = append(names, "Felipe")
+	fmt.Println(names)
+	fmt.Println(len(names))
+	fmt.Println(cap(names))
 }
