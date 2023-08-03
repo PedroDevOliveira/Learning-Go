@@ -1,88 +1,145 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 )
 
-const monitoring = 5
-const delay = 10
+const monitoramentos = 2
+const delay = 5
 
 func main() {
-	for {
-		showIntroduction()
-		var command int = readCommand()
-		//if comando == 1 {
-		//	fmt.Println("Monitorando")
-		//} else if comando == 2 {
-		//	fmt.Println("Exibindo Logs")
-		//} else if comando == 0 {
-		//	fmt.Println("Saindo do programa")
-		//} else {
-		//	fmt.Println("Comando não reconhecido")
-		//}
+	exibeIntroducao()
 
-		switch command {
+	for {
+		exibeMenu()
+
+		comando := leComando()
+
+		switch comando {
 		case 1:
-			startMonitoring()
+			iniciarMonitoramento()
 		case 2:
-			fmt.Println("Exibindo Logs")
+			fmt.Println("Exibindo Logs...")
+			imprimeLogs()
 		case 0:
+			fmt.Println("Saindo do programa")
 			os.Exit(0)
 		default:
-			fmt.Println("Comando não reconhecido")
+			fmt.Println("Não conheço este comando")
 			os.Exit(-1)
 		}
 	}
 
 }
 
-func showIntroduction() {
-	fmt.Println("1 - Iniciar Monitoramento")
-	fmt.Println("2 - Exibir Logs")
-	fmt.Println("0 - Sair do programa")
+func exibeIntroducao() {
+	nome := "Douglas"
+	versao := 1.2
+	fmt.Println("Olá, sr.", nome)
+	fmt.Println("Este programa está na versão", versao)
 }
 
-func readCommand() int {
-	var command int
-	fmt.Scan(&command)
-	// fmt.Println("O endereço de memória da minha variável comando é: ", &command)
-	fmt.Println("O comando escolhido foi:", command)
-	return command
+func exibeMenu() {
+	fmt.Println("1- Iniciar Monitoramento")
+	fmt.Println("2- Exibir Logs")
+	fmt.Println("0- Sair do Programa")
 }
 
-func startMonitoring() {
-	fmt.Println("Monitorando")
-	var listUrl = []string{"https://alura.com.br", "https://curia.coop", "https://assembleia.curia.coop", "https://painel.curia.coop/"}
+func leComando() int {
+	var comandoLido int
+	fmt.Scan(&comandoLido)
+	fmt.Println("O comando escolhido foi", comandoLido)
+	fmt.Println("")
 
-	for i := 0; i < monitoring; i++ {
-		for i, url := range listUrl {
-			position := i + 1
-			fmt.Println("Testando o site:", position)
-			testUrl(url)
+	return comandoLido
+}
+
+func iniciarMonitoramento() {
+	fmt.Println("Monitorando...")
+	sites := leSitesDoArquivo()
+
+	for i := 0; i < monitoramentos; i++ {
+		for i, site := range sites {
+			fmt.Println("Testando site", i, ":", site)
+			testaSite(site)
 		}
 		time.Sleep(delay * time.Second)
 		fmt.Println("")
 	}
+
 	fmt.Println("")
 }
 
-func testUrl(url string) {
-	var res, _ = http.Get(url)
+func testaSite(site string) {
+	resp, err := http.Get(site)
 
-	if res.StatusCode == 200 {
-		fmt.Println("Site:", url, "foi carregado com sucesso")
+	if err != nil {
+		fmt.Println("Ocorreu um erro:", err)
+	}
+
+	if resp.StatusCode == 200 {
+		fmt.Println("Site:", site, "foi carregado com sucesso!")
+		registraLog(site, true)
 	} else {
-		fmt.Println("Site:", url, "está com problemas")
+		fmt.Println("Site:", site, "esta com problemas. Status Code:", resp.StatusCode)
+		registraLog(site, false)
 	}
 }
 
-func showNames() {
-	var names = []string{"Pedro", "Daniel", "Lucas"}
-	names = append(names, "Felipe")
-	fmt.Println(names)
-	fmt.Println(len(names))
-	fmt.Println(cap(names))
+func leSitesDoArquivo() []string {
+	var sites []string
+	arquivo, err := os.Open("sites.txt")
+
+	if err != nil {
+		fmt.Println("Ocorreu um erro:", err)
+	}
+
+	leitor := bufio.NewReader(arquivo)
+	for {
+		linha, err := leitor.ReadString('\n')
+		linha = strings.TrimSpace(linha)
+
+		sites = append(sites, linha)
+
+		if err == io.EOF {
+			break
+		}
+
+	}
+
+	arquivo.Close()
+	return sites
+}
+
+func registraLog(site string, status bool) {
+
+	arquivo, err := os.OpenFile("log.txt", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	arquivo.WriteString(time.Now().Format("02/01/2006 15:04:05") + " - " + site + " - online: " + strconv.FormatBool(status) + "\n")
+
+	arquivo.Close()
+}
+
+func imprimeLogs() {
+
+	arquivo, err := ioutil.ReadFile("log.txt")
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(string(arquivo))
+
 }
