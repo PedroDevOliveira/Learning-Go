@@ -79,10 +79,10 @@ func testUrl(url string) {
 	}
 }
 
-func showNames() {
-	var names = []string{"Pedro", "Daniel", "Lucas"}
-	names = append(names, "Felipe")
-	fmt.Println(names)
-	fmt.Println(len(names))
-	fmt.Println(cap(names))
-}
+//func showNames() {
+//	var names = []string{"Pedro", "Daniel", "Lucas"}
+//	names = append(names, "Felipe")
+//	fmt.Println(names)
+//	fmt.Println(len(names))
+//	fmt.Println(cap(names))
+//}
