@@ -2,15 +2,17 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 )
 
 const monitoring = 5
 const delay = 10
 
-func main() {
+func monitoting() {
 	for {
 		showIntroduction()
 		var command int = readCommand()

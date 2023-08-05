@@ -5,7 +5,7 @@ import (
 	"reflect"
 )
 
-func main() {
+func hello() {
 	var name string = "Pedro"
 	var version float32 = 1.0
 	var age int
